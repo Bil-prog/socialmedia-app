@@ -1,9 +1,14 @@
-import { MenuIcon, X } from "lucide-react";
+import { LogOut, MenuIcon, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import { useAuth } from "../context/AuthContext";
+import placeholder from "../assets/placeholder.png"
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { signInWithGoogle, signOut, user } = useAuth();
+
+  const displayName = user?.user_metadata.user_name || user?.email;
 
   return (
     <nav className="fixed top-0 w-full z-40 bg-[rgba(10,10,10,0.8)] backdrop-blur-lg border-b border-white/10 shadow-lg">
@@ -41,6 +46,21 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* Desktop Auth */}
+      <div className="hidden md:flex items-center">
+        {user ? (
+          <div className="flex items-center space-x-4">
+            {user.user_metadata.avatar_url && (
+              <img src={user.user_metadata.avatar_url} alt={placeholder} className="w-8 h-8 rounded-full object-cover"/>
+            )}
+            <span className="text-gray-300">{displayName}</span>
+            <button onClick={signOut} className="bg-gray-500 px-3 py-1 rounded flex gap-2 items-center">Sign Out<LogOut className="size-4"/></button>
+          </div>
+        ) : (
+          <button onClick={signInWithGoogle} className="bg-blue-500 px-3 py-1 rounded cursor-pointer">SignIn</button>
+        )}
+      </div>
+
           <div className="md:hidden">
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
@@ -56,6 +76,8 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      
 
       {menuOpen && (
         <div className="md:hidden bg-[rgba(10,10,10,0.9)]">
