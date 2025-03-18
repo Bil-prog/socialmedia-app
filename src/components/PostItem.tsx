@@ -35,7 +35,7 @@ const PostItem = ({ post }: Props) => {
             <img
               src={post.image_url}
               alt={placeholder}
-              className="w-full rounded-[20px] object-cover max-h-[150px] mx-auto"
+              className="w-full rounded-[20px] object-cover h-[150px] mx-auto"
             />
           </div>
           <div className="flex justify-around items-center">

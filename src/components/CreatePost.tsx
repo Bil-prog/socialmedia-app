@@ -1,12 +1,15 @@
 import { ChangeEvent, useState } from "react";
 import { supabase } from "../supabase-client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
+import { Community, fetchCommunties } from "./CommunityList";
+import { useNavigate } from "react-router";
 
 interface PostInput {
   title: string;
   content: string;
   avatar_url: string | null;
+  community_id?: number | null;
 }
 
 const createPost = async (post: PostInput, imageFile: File) => {
@@ -34,13 +37,23 @@ const CreatePost = () => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [communityId, setCommunityId] = useState<number | null>(null);
 
+  const navigate = useNavigate();
   const {user} = useAuth();
+
+  const {data: communities} = useQuery<Community[], Error>({
+    queryKey: ["communities"],
+    queryFn: fetchCommunties,
+  })
 
   const { mutate, isPending, isError } = useMutation({
     mutationFn: (data: { post: PostInput; imageFile: File }) => {
       return createPost(data.post, data.imageFile);
     },
+    onSuccess:() => {
+      navigate("/")
+    }
   });
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -51,10 +64,16 @@ const CreatePost = () => {
         title,
         content,
         avatar_url: user?.user_metadata.avatar_url || null,
+        community_id: communityId,
       },
       imageFile: selectedFile,
     });
   };
+
+  const handleCommunityChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setCommunityId(value ? Number(value) : null);
+  }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -101,6 +120,17 @@ const CreatePost = () => {
           className="w-full border border-white/10 bg-transparent p-2 rounded"
           required
         ></textarea>
+      </div>
+      <div>
+        <label className="block mb-2 font-medium">Select Community</label>
+        <select id="community" onChange={handleCommunityChange} className="w-full border border-white/10 bg-black p-2 rounded">
+          <option value={""}> -- Choose a Community --</option>
+          {communities?.map((community, key) => (
+            <option value={community.id} key={key}>
+              {community.name}
+            </option>
+          ))}
+        </select>
       </div>
       <button
         type="submit"
