@@ -8,7 +8,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { signInWithGoogle, signOut, user } = useAuth();
 
-  const displayName = user?.user_metadata.user_name || user?.email;
+  const displayName = user?.user_metadata.full_name;
 
   return (
     <nav className="fixed top-0 w-full z-40 bg-[rgba(10,10,10,0.8)] backdrop-blur-lg border-b border-white/10 shadow-lg">
@@ -20,12 +20,6 @@ const Navbar = () => {
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              Home
-            </Link>
             <Link
               to="/create"
               className="text-gray-300 hover:text-white transition-colors"
@@ -54,14 +48,14 @@ const Navbar = () => {
               <img src={user.user_metadata.avatar_url} alt={placeholder} className="w-8 h-8 rounded-full object-cover"/>
             )}
             <span className="text-gray-300">{displayName}</span>
-            <button onClick={signOut} className="bg-gray-500 px-3 py-1 rounded flex gap-2 items-center">Sign Out<LogOut className="size-4"/></button>
+            <button onClick={signOut} className="bg-gray-500 hover:bg-gray-700 transition-colors px-3 py-1 rounded flex gap-2 items-center cursor-pointer">Sign Out<LogOut className="size-4"/></button>
           </div>
         ) : (
-          <button onClick={signInWithGoogle} className="bg-blue-500 px-3 py-1 rounded cursor-pointer">SignIn</button>
+          <button onClick={signInWithGoogle} className="bg-purple-500 hover:bg-purple-700 transition-colors px-3 py-1 rounded cursor-pointer">Sign In</button>
         )}
       </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex flex-row-reverse gap-2">
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               className="text-gray-300 focus:outline-none cursor-pointer"
@@ -73,6 +67,15 @@ const Navbar = () => {
                 <MenuIcon className="w-6 h-6" />
               )}
             </button>
+            {user ? (
+              <>
+                {user.user_metadata.avatar_url && (
+                  <img src={user.user_metadata.avatar_url} alt={placeholder} className="w-8 h-8 rounded-full object-cover"/>
+                )}
+              </>
+            ) : (
+              <button onClick={signInWithGoogle} className="bg-purple-500 hover:bg-purple-700 transition-colors px-3 py-1 rounded cursor-pointer">Sign In</button>
+            )}
           </div>
         </div>
       </div>
@@ -106,6 +109,13 @@ const Navbar = () => {
             >
               Create Community
             </Link>
+            <div>
+            {user ? (
+              <button onClick={signOut} className="bg-gray-500 hover:bg-gray-700 transition-colors px-3 py-1 rounded flex gap-2 items-center">Sign Out<LogOut className="size-4"/></button>
+            ) : (
+              <div></div>
+            )}
+            </div>
           </div>
         </div>
       )}

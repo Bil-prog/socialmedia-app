@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase-client";
+import { BsHandThumbsDown, BsHandThumbsUp, BsFillHandThumbsUpFill, BsFillHandThumbsDownFill } from "react-icons/bs";
 
 interface Props {
   postId: number;
@@ -94,22 +95,19 @@ const LikeButton = ({ postId }: Props) => {
   const userVote = votes?.find((v) => v.user_id === user?.id)?.vote;
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex gap-0.5 items-center text-black">
       <button
         onClick={() => mutate(1)}
-        className={`px-3 py-1 cursor-pointer rounded transition-colors duration-150 ${
-          userVote === 1 ? "bg-green-500 text-white" : "bg-gray-200 text-black"
-        }`}
-      >
-        👍 {likes}
+        className="px-3 py-1 cursor-pointer rounded transition-colors duration-150 flex items-center gap-1 text-black bg-white/90 rounded-l-full">
+        {userVote === 1 ? (<BsFillHandThumbsUpFill className="mr-1 h-4 w-4" />) : (<BsHandThumbsUp className="mr-1 h-4 w-4"/>)}
+        <span>{likes}</span>
       </button>
+      
       <button
         onClick={() => mutate(-1)}
-        className={`px-3 py-1 cursor-pointer rounded transition-colors duration-150 ${
-          userVote === -1 ? "bg-red-500 text-white" : "bg-gray-200 text-black"
-        }`}
-      >
-        👎 {dislikes}
+        className="px-3 py-1 cursor-pointer rounded transition-colors duration-150 flex items-center gap-1 text-black bg-white/90 rounded-r-full">
+        {userVote === -1 ? (<BsFillHandThumbsDownFill className="mr-1 h-4 w-4" />) : (<BsHandThumbsDown className="mr-1 h-4 w-4"/>)}
+        <span>{dislikes}</span>
       </button>
     </div>
   );

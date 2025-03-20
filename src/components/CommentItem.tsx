@@ -17,7 +17,8 @@ const createReply = async (
   postId: number,
   parentCommentId: number,
   userId?: string,
-  author?: string
+  author?: string,
+  avatarUrl?: string | null
 ) => {
   if (!userId || !author) {
     throw new Error("You must be logged in to reply.");
@@ -29,6 +30,7 @@ const createReply = async (
     parent_comment_id: parentCommentId,
     user_id: userId,
     author: author,
+    avatar_url: avatarUrl,
   });
 
   if (error) throw new Error(error.message);
@@ -49,7 +51,8 @@ export default function CommentItem ({ comment, postId }: Props) {
         postId,
         comment.id,
         user?.id,
-        user?.email
+        user?.user_metadata?.full_name,
+        user?.user_metadata?.avatar_url || user?.user_metadata?.picture
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
@@ -68,7 +71,9 @@ export default function CommentItem ({ comment, postId }: Props) {
     <div className="pl-4 border-l border-white/10">
       <div className="mb-2">
         <div className="flex items-center space-x-2">
-          {/* Display the commenter's username */}
+          {comment.avatar_url && (
+            <img src={comment.avatar_url} alt="avatar" className="w-6 h-6 rounded-full" />
+          )}
           <span className="text-sm font-bold text-blue-400">
             {comment.author}
           </span>

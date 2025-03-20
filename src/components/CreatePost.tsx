@@ -10,6 +10,8 @@ interface PostInput {
   content: string;
   avatar_url: string | null;
   community_id?: number | null;
+  author: string | null;
+  community?: string | null;
 }
 
 const createPost = async (post: PostInput, imageFile: File) => {
@@ -25,9 +27,21 @@ const createPost = async (post: PostInput, imageFile: File) => {
     .from("post-images")
     .getPublicUrl(filePath);
 
+  let communityName = null;
+  if(post.community_id){
+    const {data: communityData, error: communityError} = await supabase
+    .from("communities")
+    .select("name")
+    .eq("id", post.community_id)
+    .single();
+
+    if(communityError) throw new Error(communityError.message);
+    communityName = communityData?.name || null;
+  }
+
   const { data, error } = await supabase
     .from("posts")
-    .insert({ ...post, image_url: publicURLData.publicUrl });
+    .insert({ ...post, image_url: publicURLData.publicUrl, community: communityName });
 
   if (error) throw new Error(error.message);
   return data;
@@ -65,6 +79,8 @@ const CreatePost = () => {
         content,
         avatar_url: user?.user_metadata.avatar_url || null,
         community_id: communityId,
+        author: user?.user_metadata.full_name || null,
+        community: null,
       },
       imageFile: selectedFile,
     });

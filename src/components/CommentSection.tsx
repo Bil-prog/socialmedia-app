@@ -21,13 +21,15 @@ export interface Comment {
   user_id: string;
   created_at: string;
   author: string;
+  avatar_url?: string;
 }
 
 const createComment = async (
   newComment: NewComment,
   postId: number,
   userId?: string,
-  author?: string
+  author?: string,
+  avatarUrl?: string,
 ) => {
   if (!userId || !author) {
     console.error("User is not logged in")
@@ -41,6 +43,7 @@ const createComment = async (
     parent_comment_id: newComment.parent_comment_id || null,
     user_id: userId,
     author: author,
+    avatar_url: avatarUrl,
   });
 
   if (error) {
@@ -83,7 +86,8 @@ export default function CommentSection ({ postId }: Props) {
         newComment,
         postId,
         user?.id,
-        user?.email
+        user?.user_metadata?.full_name,
+        user?.user_metadata?.avatar_url || user?.user_metadata?.picture
       ),
       
     onError: (error) => {
@@ -99,6 +103,7 @@ export default function CommentSection ({ postId }: Props) {
     if (!newCommentText) return;
     console.log("User ID:", user?.id);
     console.log("Author:", user?.email); 
+    console.log("Avatar URL:", user?.user_metadata?.avatar_url || user?.user_metadata?.picture);
     mutate({ content: newCommentText, parent_comment_id: null });
     setNewCommentText("");
   };
@@ -141,7 +146,7 @@ export default function CommentSection ({ postId }: Props) {
     <div className="mt-6">
       <h3 className="text-2xl font-semibold mb-4">Comments</h3>
       {user ? (
-        <form onSubmit={handleSubmit} className="pb-4">
+        <form onSubmit={handleSubmit} className="flex-1 pb-4">
           <textarea
             value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
@@ -149,12 +154,14 @@ export default function CommentSection ({ postId }: Props) {
             placeholder="Write a comment..."
             rows={3}
           />
-          <button
-            type="submit"
-            className="mt-2 bg-purple-500 text-white px-4 py-2 rounded cursor-pointer"
-          >
-            {isPending ? "Posting..." : "Post Comment"}
-          </button>
+          <div className="mt-3 flex justify-end">
+            <button
+              type="submit"
+              className="mt-2 bg-purple-500 text-white px-4 py-2 rounded cursor-pointer"
+            >
+              {isPending ? "Posting..." : "Post Comment"}
+            </button>
+          </div>
           {isError && (
             <p className="text-red-500 mt-2">Error posting comment.</p>
           )}

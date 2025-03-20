@@ -11,6 +11,9 @@ export interface Post {
   avatar_url: string;
   like_count?: number;
   comment_count?: number;
+  author?: string | null;
+  community_id?: number | null;
+  community?: string | null;
 }
 
 const fetchPosts = async (): Promise<Post[]> => {
@@ -25,6 +28,7 @@ const PostList = () => {
     queryKey: ["posts"],
     queryFn: fetchPosts,
   });
+  
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -36,11 +40,11 @@ const PostList = () => {
   console.log(data);
 
   return (
-    <div className="flex flex-wrap gap-6 justify-center">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center px-6">
       {data?.map((post, key) => (
         <PostItem post={post} key={key}/>
       ))}
-    </div>
+    </div> 
   );
 };
 
